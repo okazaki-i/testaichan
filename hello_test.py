@@ -7,6 +7,12 @@ def add(a: float, b: float) -> float:
     return a + b
 
 
+def multiply(a: float, b: float) -> float:
+    """2つの実数の積を返す。"""
+    return a * b
+
+
 if __name__ == "__main__":
     x, y = 2.5, 3.1
     print(f"{x} + {y} = {add(x, y)}")
+    print(f"{x} * {y} = {multiply(x, y)}")
