@@ -7,24 +7,36 @@ LIMIT = 100
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
 for line in sys.stdin:
+
+    had_newline = line.endswith('\n')
+
     pos = 0
     visible = 0
     out = ""
+    emitted_newline = False
 
     while pos < len(line) and visible < LIMIT:
+
         m = ansi_re.match(line, pos)
 
         if m:
             out += m.group(0)
             pos = m.end()
+
         else:
-            out += line[pos]
+            ch = line[pos]
+            out += ch
             pos += 1
 
-            if line[pos - 1] != '\n':
+            if ch == '\n':
+                emitted_newline = True
+            else:
                 visible += 1
 
     out += "\x1b[0m"
+
+    if had_newline and not emitted_newline:
+        out += '\n'
 
     sys.stdout.write(out)
 sys.stdout.write( '\n' )
