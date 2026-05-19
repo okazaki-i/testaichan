@@ -20,7 +20,11 @@ for line in sys.stdin:
         else:
             out += line[pos]
             pos += 1
-            visible += 1
+
+            if line[pos - 1] != '\n':
+                visible += 1
 
     out += "\x1b[0m"
-    print(out)
+
+    sys.stdout.write(out)
+sys.stdout.write( '\n' )
