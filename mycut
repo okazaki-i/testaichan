@@ -6,7 +6,7 @@ import sys
 import os
 import stat
 
-LIMIT = 100
+DEFAULT_LIMIT = 100
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -23,25 +23,53 @@ def _is_pipe_or_tty_stdout():
     return stat.S_ISFIFO(mode)
 
 
-def _parse_color_mode(argv):
-    mode = 'auto'
-    rest = []
-    for arg in argv:
+def _parse_positive_int(value, option_name):
+    try:
+        number = int(value)
+    except ValueError:
+        print(f"mycut: invalid value for {option_name}: '{value}'", file=sys.stderr)
+        sys.exit(2)
+
+    if number <= 0:
+        print(f"mycut: invalid value for {option_name}: '{value}'", file=sys.stderr)
+        sys.exit(2)
+
+    return number
+
+
+def _parse_options(argv):
+    color_mode = 'auto'
+    limit = DEFAULT_LIMIT
+    i = 0
+
+    while i < len(argv):
+        arg = argv[i]
+
         if arg.startswith('--color='):
             value = arg.split('=', 1)[1]
             if value not in ('auto', 'never', 'always'):
                 print(f"mycut: invalid argument for --color: '{value}'", file=sys.stderr)
                 sys.exit(2)
-            mode = value
+            color_mode = value
+        elif arg == '-c' or arg == '--characters':
+            i += 1
+            if i >= len(argv):
+                print(f"mycut: option requires an argument -- '{arg}'", file=sys.stderr)
+                sys.exit(2)
+            limit = _parse_positive_int(argv[i], arg)
+        elif arg.startswith('--characters='):
+            value = arg.split('=', 1)[1]
+            limit = _parse_positive_int(value, '--characters')
         else:
-            rest.append(arg)
-    return mode, rest
+            print('usage: mycut [--color=auto|never|always] [-c N|--characters N|--characters=N]', file=sys.stderr)
+            sys.exit(2)
+
+        i += 1
+
+    return color_mode, limit
 
 
-color_mode, args = _parse_color_mode(sys.argv[1:])
-if args:
-    print('usage: mycut [--color=auto|never|always]', file=sys.stderr)
-    sys.exit(2)
+color_mode, limit = _parse_options(sys.argv[1:])
 
 if color_mode == 'always':
     keep_color = True
@@ -58,7 +86,7 @@ for line in sys.stdin:
     visible = 0
     out = ""
 
-    while pos < len(content) and visible < LIMIT:
+    while pos < len(content) and visible < limit:
         m = ansi_re.match(content, pos)
 
         if m:
