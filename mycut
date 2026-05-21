@@ -102,9 +102,13 @@ for line in sys.stdin:
                 out += m.group(0)
             pos = m.end()
         else:
-            out += content[pos]
+            ch = content[pos]
+            width = _char_width(ch)
+            if visible + width > limit:
+                break
+            out += ch
             pos += 1
-            visible += _char_width(content[pos - 1])
+            visible += width
 
     if keep_color:
         out += "\x1b[0m"

@@ -28,3 +28,8 @@ def test_truncated_line_without_newline_keeps_no_newline() -> None:
 def test_japanese_characters_are_counted_as_two() -> None:
     data = "あいうえお\n".encode("utf-8")
     assert subprocess.check_output(["./mycut", "-c", "6"], input=data) == "あいう\x1b[0m\n".encode("utf-8")
+
+
+def test_japanese_characters_do_not_exceed_limit() -> None:
+    data = "あいうえお\n".encode("utf-8")
+    assert subprocess.check_output(["./mycut", "-c", "5"], input=data) == "あい\x1b[0m\n".encode("utf-8")
