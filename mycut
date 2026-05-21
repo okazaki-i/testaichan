@@ -1,12 +1,83 @@
 #!/usr/bin/env python3
 # 2026/05/20 coded by codex
+# 2026/05/20 coded by codex
 
 import re
 import sys
+import os
+import stat
 
-LIMIT = 100
+DEFAULT_LIMIT = 100
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
+
+
+def _is_pipe_or_tty_stdout():
+    if sys.stdout.isatty():
+        return True
+
+    try:
+        mode = os.fstat(sys.stdout.fileno()).st_mode
+    except OSError:
+        return False
+
+    return stat.S_ISFIFO(mode)
+
+
+def _parse_positive_int(value, option_name):
+    try:
+        number = int(value)
+    except ValueError:
+        print(f"mycut: invalid value for {option_name}: '{value}'", file=sys.stderr)
+        sys.exit(2)
+
+    if number <= 0:
+        print(f"mycut: invalid value for {option_name}: '{value}'", file=sys.stderr)
+        sys.exit(2)
+
+    return number
+
+
+def _parse_options(argv):
+    color_mode = 'auto'
+    limit = DEFAULT_LIMIT
+    i = 0
+
+    while i < len(argv):
+        arg = argv[i]
+
+        if arg.startswith('--color='):
+            value = arg.split('=', 1)[1]
+            if value not in ('auto', 'never', 'always'):
+                print(f"mycut: invalid argument for --color: '{value}'", file=sys.stderr)
+                sys.exit(2)
+            color_mode = value
+        elif arg == '-c' or arg == '--characters':
+            i += 1
+            if i >= len(argv):
+                print(f"mycut: option requires an argument -- '{arg}'", file=sys.stderr)
+                sys.exit(2)
+            limit = _parse_positive_int(argv[i], arg)
+        elif arg.startswith('--characters='):
+            value = arg.split('=', 1)[1]
+            limit = _parse_positive_int(value, '--characters')
+        else:
+            print('usage: mycut [--color=auto|never|always] [-c N|--characters N|--characters=N]', file=sys.stderr)
+            sys.exit(2)
+
+        i += 1
+
+    return color_mode, limit
+
+
+color_mode, limit = _parse_options(sys.argv[1:])
+
+if color_mode == 'always':
+    keep_color = True
+elif color_mode == 'never':
+    keep_color = False
+else:
+    keep_color = _is_pipe_or_tty_stdout()
 
 for line in sys.stdin:
     had_newline = line.endswith('\n')
@@ -16,18 +87,20 @@ for line in sys.stdin:
     visible = 0
     out = ""
 
-    while pos < len(content) and visible < LIMIT:
+    while pos < len(content) and visible < limit:
         m = ansi_re.match(content, pos)
 
         if m:
-            out += m.group(0)
+            if keep_color:
+                out += m.group(0)
             pos = m.end()
         else:
             out += content[pos]
             pos += 1
             visible += 1
 
-    out += "\x1b[0m"
+    if keep_color:
+        out += "\x1b[0m"
 
     if had_newline:
         out += '\n'
