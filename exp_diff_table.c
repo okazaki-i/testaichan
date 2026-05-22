@@ -1,16 +1,13 @@
 /*
   exp(x)の微分値の近似 ( exp(x+h) - exp(x-h) ) / (2*h) と
   正しい値 exp(x) の比較
-
-
-？？？
-  h が小さすぎると丸め誤差が目立ち、
-  h が大きすぎると離散化誤差が目立つ区間を比較しやすいように設定。
+  - h が大きすぎると誤差は大きい（離散化による誤差）
+  - h が小さすぎても誤差は大きい（丸めによる誤差）
 
   $ gcc exp_diff_table.c -lm && ./a.out
   $ ./a.out
   $ gnuplot
-  gnuplot> splot '< ./a.out' u 1:2:5 w l, 1e-16  #対数軸がにするとよい
+  gnuplot> splot '< ./a.out' u 1:2:5 w l  #yとzを対数軸にするとよい
 */
 
 #include  <math.h>
