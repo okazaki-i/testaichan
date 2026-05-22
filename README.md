@@ -23,9 +23,6 @@
 - bit_array_display.c  
   ビット列や配列の表示確認を目的としたCサンプルです。
 
-- temp.hello  
-  一時的な検証用ファイルです。
-
 ## 使い方
 
 ### mycut
