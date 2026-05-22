@@ -29,7 +29,7 @@ int main( void )
 
     printf( "#%11s %12s %22s %22s %22s\n",
             "x", "h", "exp(x)",
-            "diff_approx", "|error|" );
+            "diff_approx", "|relative error|" );
     printf( "#%11s %12s %22s %22s %22s\n",
             "-----------", "------------", "----------------------",
             "----------------------", "----------------------" );
@@ -41,7 +41,7 @@ int main( void )
         for ( int j = 0; j < h_count; j++ ) {
             double  h      = h_values[j];
             double  approx = ( exp(x+h) - exp(x-h) ) / (2.0*h);
-            double  err    = fabs( approx - exact );
+            double  err    = fabs( (approx - exact) / exact );
 
             printf( "%12.4f %12.1e %22.14e %22.14e %22.14e\n",
                     x, h, exact, approx, err );
