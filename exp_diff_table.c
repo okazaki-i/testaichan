@@ -5,7 +5,6 @@
   - h が小さすぎても誤差は大きい（桁落ちによる誤差）
 
   $ gcc exp_diff_table.c -lm && ./a.out
-  $ ./a.out
   $ gnuplot
   gnuplot> splot '< ./a.out' u 1:2:5 w l  #yとzを対数軸にするとよい
 */
