@@ -1,10 +1,17 @@
+/*
+ $ gcc bit_array_display.c -lm && ./a.out
+*/
 #include  <stdio.h>
 #include  <stdint.h>  //unit64_tを使うため
 //#include  <math.h>
+//#include  <limits.h>
+//#include  <float.h>
 
 int main( void )
 {
     int  i = 123;
+//    i = INT_MAX;
+//    i = -1;
     int  int_bits = (int)( sizeof(int) * 8 );  //多くの場合８バイト
 
     printf( "i = %d\n", i );
@@ -19,6 +26,9 @@ int main( void )
 //    d = d / 0.0;
 //    d = log( -d );
 //    double d = 1.0/3.0;
+//    d = DBL_MAX;
+//    d = DBL_MIN;
+//    d = 1.0e-320;
     union {
         double    d;
         uint64_t  u;  //doubleが８バイトを仮定
@@ -26,6 +36,7 @@ int main( void )
     d_bits.d = d;
 
     printf( "d = %.1lf\n", d );
+  //printf( "d = %.1le\n", d );
 //    printf( "d = %.50lf\n", d );
     printf( "double bit array: " );
     for ( int b = (int)( sizeof(d_bits.u) * 8 ) - 1; b >= 0; b--) {
