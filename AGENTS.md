@@ -45,15 +45,13 @@
 - SIMD化や最適化により数値結果が変わる可能性がある場合は明記すること。
 
 ## Git ブランチ
-
 - Pull Request 用ブランチは `codex/<short-name>` の形式にすること。
 - `<short-name>` は短く簡潔な英単語を使うこと。
 - ブランチ名には空白を含めないこと。
 - ブランチ名には日本語を使わないこと。
-例:
-- codex/fix-build
-- codex/add-test
-- codex/update-readme
-- codex/fix-warning
-- ブランチ名は 2～4 単語程度にすること。
+- ブランチ名は 2～4 単語程度にすること。例えば
+  - codex/fix-build
+  - codex/add-test
+  - codex/update-readme
+  - codex/fix-warning     
 - 不必要に長いブランチ名を避けること。
