@@ -5,7 +5,7 @@
 
 int main( void )
 {
-    int  i = 123;
+    int  i = 0x00124F58;
     int  int_bits = (int)( sizeof(int) * 8 );  //多くの場合８バイト
 
     printf( "i = %d\n", i );
@@ -17,6 +17,15 @@ int main( void )
         if ( b % 8 == 0 && b != 0 ) putchar( ' ' );
     }
     putchar( '\n' );
+
+    printf( "int byte array: (low->high address)\n" );
+    unsigned char   c;
+    unsigned char*  p = (unsigned char*)&i;
+    for ( int i = 0; i < sizeof(int); i++ ) {
+        printf( "  %02X\n", *(p+i) );
+    }
+
+
 
     return 0;
 }
