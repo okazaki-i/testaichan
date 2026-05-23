@@ -28,7 +28,8 @@ int main( void )
 //    double d = 1.0/3.0;
 //    d = DBL_MAX;
 //    d = DBL_MIN;
-//    d = 1.0e-320;
+//    d = 1.0e-323;
+//    d = 5e-324;
     union {
         double    d;
         uint64_t  u;  //doubleが８バイトを仮定
@@ -36,7 +37,7 @@ int main( void )
     d_bits.d = d;
 
     printf( "d = %.1lf\n", d );
-  //printf( "d = %.1le\n", d );
+  printf( "d = %.1le\n", d );
 //    printf( "d = %.50lf\n", d );
     printf( "double bit array: " );
     for ( int b = (int)( sizeof(d_bits.u) * 8 ) - 1; b >= 0; b--) {
