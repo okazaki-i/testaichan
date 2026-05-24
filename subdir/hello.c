@@ -8,7 +8,7 @@ int main(void)
     struct tm *tm_now;
     char datetime[20];
 
-    printf("Hello world\n");
+    printf("Hello World !!\n");
     now = time(NULL);
     tm_now = localtime(&now);
     if (tm_now != NULL && strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", tm_now) > 0) {

@@ -4,7 +4,7 @@ program hello
     character(len=8) :: time
     integer :: values(8), stat
 
-    print *, "Hello world"
+    print *, "Hello World !!"
     call date_and_time(date=date, time=time, values=values)
     stat = values(1)
     if (stat > 0) then

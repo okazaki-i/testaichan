@@ -4,7 +4,7 @@
 
 int main()
 {
-    std::cout << "Hello world" << std::endl;
+    std::cout << "Hello World !!" << std::endl;
     std::time_t now = std::time(nullptr);
     std::tm *tm_now = std::localtime(&now);
     if (tm_now != nullptr) {
