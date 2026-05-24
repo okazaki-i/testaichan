@@ -5,7 +5,7 @@ uses
 begin
     writeln('Hello world');
     try
-        writeln(FormatDateTime('yyyy-mm-dd', Date));
+        writeln(FormatDateTime('yyyy-mm-dd hh:nn:ss', Now));
     except
         writeln('none');
     end;

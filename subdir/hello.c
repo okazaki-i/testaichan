@@ -6,13 +6,13 @@ int main(void)
 {
     time_t now;
     struct tm *tm_now;
-    char date[11];
+    char datetime[20];
 
     printf("Hello world\n");
     now = time(NULL);
     tm_now = localtime(&now);
-    if (tm_now != NULL && strftime(date, sizeof(date), "%Y-%m-%d", tm_now) > 0) {
-        printf("%s\n", date);
+    if (tm_now != NULL && strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", tm_now) > 0) {
+        printf("%s\n", datetime);
     } else {
         printf("none\n");
     }

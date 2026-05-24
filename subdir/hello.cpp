@@ -8,9 +8,9 @@ int main()
     std::time_t now = std::time(nullptr);
     std::tm *tm_now = std::localtime(&now);
     if (tm_now != nullptr) {
-        char date[11];
-        if (std::strftime(date, sizeof(date), "%Y-%m-%d", tm_now) > 0) {
-            std::cout << date << std::endl;
+        char datetime[20];
+        if (std::strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", tm_now) > 0) {
+            std::cout << datetime << std::endl;
         } else {
             std::cout << "none" << std::endl;
         }
