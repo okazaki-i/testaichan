@@ -1,4 +1,6 @@
 /*
+出力先の種類を知るサンプルコード
+
 $ gcc outswtch.c
   $ ./a.out
 stdout = terminal

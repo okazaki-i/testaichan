@@ -1,5 +1,5 @@
 /*
- $ gcc bit_array_display-intx.c -lm && ./a.out
+ $ gcc bit_array_display-endi.c -lm && ./a.out
 */
 #include  <stdio.h>
 
@@ -18,6 +18,8 @@ int main( void )
     }
     putchar( '\n' );
 
+
+    // エンディアンに関する出力
     printf( "int byte array: (low->high address)\n" );
     unsigned char   c;
     unsigned char*  p = (unsigned char*)&i;
