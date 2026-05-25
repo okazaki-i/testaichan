@@ -1,15 +1,15 @@
-```
-GitHubの使われ方のサンプル
-```
+
+# GitHubの使われ方のサンプル
+
 
 https://github.com/TeraTermProject/teraterm （おおもとのページ）
 
 https://github.com/TeraTermProject/teraterm/releases/tag/v5.6.1 （リリースの何かの記載）
 
 
-```
-Markdownの基本的な書き方
-```
+
+# Markdownの基本的な書き方
+
 
 # 大見出し (#)
 ## 中見出し (##)
@@ -79,6 +79,6 @@ HTMLで画像を25%にして貼り付ける事ができる！？
 - [ ] 未完了
 - [x] 完了
 
-```
-以上です。
-```
+
+# 以上です。
+
