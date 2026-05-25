@@ -1,4 +1,13 @@
 ```
+GitHubの使われ方のサンプル
+```
+
+https://github.com/TeraTermProject/teraterm （おおもとのページ）
+
+https://github.com/TeraTermProject/teraterm/releases/tag/v5.6.1 （リリースの何かの記載）
+
+
+```
 Markdownの基本的な書き方
 ```
 
