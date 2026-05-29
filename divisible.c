@@ -1,67 +1,66 @@
+/*
+  $ gcc divisible.c && ./a.out 10 2  ; echo $?
+  $ gcc divisible.c && ./a.out 10 3  ; echo $?
+  $ gcc divisible.c && ./a.out 10 3a ; echo $?
+  直前のコマンドの終了ステータスを $? で知ることができます。
+
+  $ LANG=en_US.UTF-8 ./a.out 10 3a
+  $ LANG=ja_JP.UTF-8 ./a.out 10 3a
+  ロケール (LANGに代入している値) のフォーマットは "言語_国.文字コード" であり、
+  言語や地域に応じた表示 (言語と、年月日、通貨や小数点記号など）を指定するもの
+  である。
+*/
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdlib.h>  //getenvのため
+#include <string.h>  //strcmpのため
 
-static int uses_japanese(void)
+void print_error( char *english, char *japanese )
 {
-    const char *value;
-
-    value = getenv("LANG");
-    return value != NULL && (value[0] == 'j' || value[0] == 'J')
-        && (value[1] == 'a' || value[1] == 'A');
-}
-
-static void print_error(const char *english, const char *japanese)
-{
-    if (uses_japanese()) {
-        fprintf(stderr, "%s\n", japanese);
+    char*  v = getenv( "LANG" );  //環境変数LANGの値を得る
+    if ( v != NULL
+         && ( v[0] == 'j' || v[0] == 'J' )
+         && ( v[1] == 'a' || v[1] == 'A' ) ) {
+        fprintf( stderr, "%s\n", japanese ); //値がjaで始まっているとき
     } else {
-        fprintf(stderr, "%s\n", english);
+        fprintf( stderr, "%s\n", english  ); //それ以外
     }
+    return;
 }
 
-static int parse_positive_integer(const char *text, long long *value)
+int parse_positive_integer( char *text, long long *value )
 {
-    char extra;
-    char formatted[32];
-    long long parsed;
-
-    if (sscanf(text, "%lld%c", &parsed, &extra) != 1 || parsed <= 0) {
-        return -1;
-    }
-
-    sprintf(formatted, "%lld", parsed);
-    if (strcmp(text, formatted) != 0) {
-        return -1;
-    }
-
-    *value = parsed;
+    char  valuetext[256];
+    if ( sscanf( text, "%lld", value ) != 1 ) return 255;  //数字でなかった
+    if ( *value <= 0 ) return -1;  //正でなかった
+    //123abc, 00123, +123 のような値は sscanfで123と読まれるが、エラーにする
+    //オーバーフローのときもここでエラーになる
+    sprintf( valuetext, "%lld", *value ); //printf( "valuetext=[%s]\n", valuetext );
+    if ( strcmp( text, valuetext ) != 0 ) return 255;
     return 0;
 }
 
-int main(int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
-    long long dividend;
-    long long divisor;
+    long long  dividend, divisor;
 
-    if (argc != 3) {
-        print_error(
-            "Usage: divisible POSITIVE_INTEGER POSITIVE_INTEGER",
-            "使い方: divisible 正の整数 正の整数");
-        return -1;
+    if ( argc != 2+1 ) {
+        print_error( "Usage: divisible POSITIVE_INTEGER POSITIVE_INTEGER",
+                     "使い方: divisible 正の整数 正の整数" );
+        return 255;
     }
 
-    if (parse_positive_integer(argv[1], &dividend) != 0
-        || parse_positive_integer(argv[2], &divisor) != 0) {
+    if (    parse_positive_integer( argv[1], &dividend ) != 0
+         || parse_positive_integer( argv[2], &divisor  ) != 0 ) {
         print_error(
             "Error: arguments must be positive integers.",
             "エラー: 引数は正の整数でなければなりません。");
-        return -1;
+        return 255;
     }
 
-    if (dividend % divisor == 0) {
+    if ( dividend % divisor == 0 ) {
         return 0;
+    } else {
+        return 1;
     }
-
-    return 1;
 }
