@@ -1,19 +1,12 @@
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int uses_japanese(void)
 {
     const char *value;
 
-    value = getenv("LC_ALL");
-    if (value == NULL || value[0] == '\0') {
-        value = getenv("LC_MESSAGES");
-    }
-    if (value == NULL || value[0] == '\0') {
-        value = getenv("LANG");
-    }
-
+    value = getenv("LANG");
     return value != NULL && (value[0] == 'j' || value[0] == 'J')
         && (value[1] == 'a' || value[1] == 'A');
 }
@@ -29,12 +22,16 @@ static void print_error(const char *english, const char *japanese)
 
 static int parse_positive_integer(const char *text, long long *value)
 {
-    char *endptr;
+    char extra;
+    char formatted[32];
     long long parsed;
 
-    errno = 0;
-    parsed = strtoll(text, &endptr, 10);
-    if (errno == ERANGE || endptr == text || *endptr != '\0' || parsed <= 0) {
+    if (sscanf(text, "%lld%c", &parsed, &extra) != 1 || parsed <= 0) {
+        return -1;
+    }
+
+    sprintf(formatted, "%lld", parsed);
+    if (strcmp(text, formatted) != 0) {
         return -1;
     }
 
