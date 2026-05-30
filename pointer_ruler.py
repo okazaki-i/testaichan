@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-# 2026/05/30 coded by chatgpt, and modified a lot
+'''
+  pointer_ruler.py
+
+  マウスボタンで以下の動作をする。
+  - Button1ドラッグ  移動や拡大縮小させる
+  - Button2          終了する
+  - Button3          ウィンドウマネージャによる修飾の有効無効化を切り替える(VcXsrv用)
+
+  2026/05/30 coded by chatgpt, and modified a lot by okazaki,i
+'''
 
 import tkinter
 
@@ -18,9 +27,16 @@ canvas.pack( fill="both", expand=True )
 mode = None; start_x = 0; start_y = 0
 
 
+def button_press2( event ):
+    '''終了させる
+    （VcXsrvだとウィンドウマネージャによる修飾を無効にしていると
+    キーイベントを受け取れないようである）'''
+    root.destroy()
+
 def button_press3( event ):
     '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする
-    （VcXsrvでウィンドウが背面から最前面に変えられないときの処置）'''
+    （VcXsrvでウィンドウが背面から最前面に変えられないときの処置として、
+    いったん有効にして最前面にさせるために用意している）'''
     root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
     root.withdraw(); root.deiconify() #うまく再描画させるため
 
@@ -62,9 +78,11 @@ def motion( event ):
         h = max( 5, start_h + dy )
         root.geometry( f"{root.winfo_width()}x{h}" )
 
+    #print( f"in motion: {root.winfo_width()}x{root.winfo_height()}+{root.winfo_x()}+{root.winfo_y()}" )
 
-canvas.bind( "<Button-3>", button_press3 )
-canvas.bind( "<Button-1>", button_press1 )
+
+canvas.bind( "<Button-2>", button_press2 ) #終了
+canvas.bind( "<Button-3>", button_press3 ) #ウィンドウマネージャによる修飾の有効無効化
+canvas.bind( "<Button-1>", button_press1 ) #移動や拡大縮小
 canvas.bind( "<B1-Motion>", motion )
-root.bind( "q", lambda e: root.destroy() )
 root.mainloop()
