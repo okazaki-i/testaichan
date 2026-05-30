@@ -18,17 +18,23 @@ canvas.pack( fill="both", expand=True )
 mode = None; start_x = 0; start_y = 0
 
 
+def quit_app( event=None ):
+    root.destroy()
+
+
 def button_press3( event ):
     '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする
     （VcXsrvでウィンドウが背面から最前面に変えられないときの処置）'''
     root.withdraw()
     root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
     root.deiconify()
+    root.focus_force()
 
 
 def button_press1( event ):
     global mode, start_x, start_y, start_w, start_h
 
+    root.focus_force()
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
     if event.x >= start_w - EDGE:
@@ -60,5 +66,7 @@ def motion( event ):
 canvas.bind( "<Button-3>", button_press3 )
 canvas.bind( "<Button-1>", button_press1 )
 canvas.bind( "<B1-Motion>", motion )
-root.bind( "q", lambda e: root.destroy() )
+root.bind_all( "<KeyPress-q>", quit_app )
+root.bind_all( "<KeyPress-Q>", quit_app )
+root.after_idle( root.focus_force )
 root.mainloop()
