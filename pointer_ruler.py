@@ -34,11 +34,23 @@ def button_press2( event ):
     root.destroy()
 
 def button_press3( event ):
-    '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする
-    （VcXsrvでウィンドウが背面から最前面に変えられないときの処置として、
-    いったん有効にして最前面にさせるために用意している）'''
+    '''Button3押下をTk内で止める
+    （押下中にwithdrawすると、VcXsrvがWindows側へ同じボタン押下を渡すことがある）'''
+    return "break"
+
+
+def toggle_decorations():
+    '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする'''
     root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
     root.withdraw(); root.deiconify() #うまく再描画させるため
+
+
+def button_release3( event ):
+    '''Button3を離した後でウィンドウマネージャによる装飾を切り替える
+    （VcXsrvでウィンドウが背面から最前面に変えられないときの処置として、
+    いったん有効にして最前面にさせるために用意している）'''
+    root.after_idle( toggle_decorations )
+    return "break"
 
 
 def button_press1( event ):
@@ -82,7 +94,8 @@ def motion( event ):
 
 
 canvas.bind( "<Button-2>", button_press2 ) #終了
-canvas.bind( "<Button-3>", button_press3 ) #ウィンドウマネージャによる修飾の有効無効化
+canvas.bind( "<Button-3>", button_press3 ) #Button3押下をTk内で止める
+canvas.bind( "<ButtonRelease-3>", button_release3 ) #ウィンドウマネージャによる修飾の有効無効化
 canvas.bind( "<Button-1>", button_press1 ) #移動や拡大縮小
 canvas.bind( "<B1-Motion>", motion )
 root.mainloop()
