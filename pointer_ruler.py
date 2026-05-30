@@ -17,9 +17,17 @@ canvas.pack( fill="both", expand=True )
 
 mode = None; start_x = 0; start_y = 0
 
+def restore_override_redirect():
+    root.overrideredirect( True )
+
+def temporarily_release_override_redirect():
+    root.overrideredirect( False )
+    root.after( 100, restore_override_redirect )
+
 def button_press( event ):
     global mode, start_x, start_y, start_w, start_h
 
+    temporarily_release_override_redirect()
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
     if event.x >= start_w - EDGE:
