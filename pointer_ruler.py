@@ -17,9 +17,16 @@ canvas.pack( fill="both", expand=True )
 
 mode = None; start_x = 0; start_y = 0
 
+def raise_window():
+    root.lift()
+    root.focus_force()
+    root.attributes( "-topmost", False )
+    root.attributes( "-topmost", True )
+
 def button_press( event ):
     global mode, start_x, start_y, start_w, start_h
 
+    raise_window()
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
     if event.x >= start_w - EDGE:
