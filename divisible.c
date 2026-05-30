@@ -30,13 +30,24 @@ void print_error( char *english, char *japanese )
 
 int parse_positive_integer( char *text, long long *value )
 {
-    char  valuetext[256];
-    if ( sscanf( text, "%lld", value ) != 1 ) return 255;  //数字でなかった
-    if ( *value <= 0 ) return -1;  //正でなかった
-    //123abc, 00123, +123 のような値は sscanfで123と読まれるが、エラーにする
-    //オーバーフローのときもここでエラーになる
-    sprintf( valuetext, "%lld", *value ); //printf( "valuetext=[%s]\n", valuetext );
-    if ( strcmp( text, valuetext ) != 0 ) return 255;
+    char  value2text[256];
+    if ( sscanf( text, "%lld", value ) != 1 ) {
+        //数字でなかった
+        fprintf( stderr, "scan failed: text=[%s]\n", text );
+        return -1;
+    }
+    if ( *value <= 0 ) {
+        //正でなかった
+        fprintf( stderr, "not positive: text=[%s]\n", text );
+        return -1;
+    }
+    sprintf( value2text, "%lld", *value );
+    if ( strcmp( text, value2text ) != 0 ) {
+        //123abc, 00123, +123 のような値は sscanfで123と読まれるが、エラーにする
+        //オーバーフローのときもここでエラーになる
+        fprintf( stderr, "not matched: text=[%s], value2text=[%s]\n", text, value2text );
+        return -1;
+    }
     return 0;
 }
 
@@ -52,9 +63,8 @@ int main( int argc, char *argv[] )
 
     if (    parse_positive_integer( argv[1], &dividend ) != 0
          || parse_positive_integer( argv[2], &divisor  ) != 0 ) {
-        print_error(
-            "Error: arguments must be positive integers.",
-            "エラー: 引数は正の整数でなければなりません。");
+        print_error( "Error: arguments must be positive integers.",
+                     "エラー: 引数は正の整数でなければなりません。");
         return 255;
     }
 
