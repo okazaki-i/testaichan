@@ -21,9 +21,8 @@ mode = None; start_x = 0; start_y = 0
 def button_press3( event ):
     '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする
     （VcXsrvでウィンドウが背面から最前面に変えられないときの処置）'''
-    root.withdraw()
     root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
-    root.deiconify()
+    root.withdraw(); root.deiconify() #うまく再描画させるため
 
 
 def button_press1( event ):
@@ -31,7 +30,9 @@ def button_press1( event ):
 
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
-    if event.x >= start_w - EDGE:
+    if event.x >= start_w - EDGE and event.y >= start_h - EDGE:
+        mode = "resize_width_height"
+    elif event.x >= start_w - EDGE:
         mode = "resize_width"
     elif event.y >= start_h - EDGE:
         mode = "resize_height"
@@ -47,6 +48,11 @@ def motion( event ):
         x = root.winfo_x() + dx; y = root.winfo_y() + dy
         root.geometry( f"+{x}+{y}" )
         start_x = event.x_root; start_y = event.y_root
+
+    elif mode == "resize_width_height":
+        w = max( 20, start_w + dx )
+        h = max( 5, start_h + dy )
+        root.geometry( f"{w}x{h}" )
 
     elif mode == "resize_width":
         w = max( 20, start_w + dx )
