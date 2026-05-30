@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 2026/05/30 coded by chatgpt, and modified
+# 2026/05/30 coded by chatgpt, and modified a lot
 
 import tkinter
 
@@ -17,7 +17,16 @@ canvas.pack( fill="both", expand=True )
 
 mode = None; start_x = 0; start_y = 0
 
-def button_press( event ):
+
+def button_press3( event ):
+    '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする
+    （VcXsrvでウィンドウが背面から最前面に変えられないときの処置）'''
+    root.withdraw()
+    root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
+    root.deiconify()
+
+
+def button_press1( event ):
     global mode, start_x, start_y, start_w, start_h
 
     start_x = event.x_root; start_y = event.y_root
@@ -48,7 +57,8 @@ def motion( event ):
         root.geometry( f"{root.winfo_width()}x{h}" )
 
 
-canvas.bind( "<Button-1>", button_press )
+canvas.bind( "<Button-3>", button_press3 )
+canvas.bind( "<Button-1>", button_press1 )
 canvas.bind( "<B1-Motion>", motion )
 root.bind( "q", lambda e: root.destroy() )
 root.mainloop()
