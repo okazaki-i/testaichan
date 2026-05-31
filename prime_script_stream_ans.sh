@@ -7,7 +7,7 @@ for (( i = 2; i <= max; i++ )); do
     is_prime=1
 
     for (( j = 2; j < i; j++ )); do
-        ./a.out $i $j
+        ./divisable $i $j
         if [ $? -eq 0 ]; then
             is_prime=0
             break

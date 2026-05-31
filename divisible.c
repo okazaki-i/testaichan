@@ -1,11 +1,12 @@
 /*
-  $ gcc divisible.c && ./a.out 10 2  ; echo $?
-  $ gcc divisible.c && ./a.out 10 3  ; echo $?
-  $ gcc divisible.c && ./a.out 10 3a ; echo $?
+  $ gcc divisible.c -o divisible
+  $ ./divisible 10 2  ; echo $?
+  $ ./divisible 10 3  ; echo $?
+  $ ./divisible 10 3a ; echo $?
   直前のコマンドの終了ステータスを $? で知ることができます。
 
-  $ LANG=en_US.UTF-8 ./a.out 10 3a
-  $ LANG=ja_JP.UTF-8 ./a.out 10 3a
+  $ LANG=en_US.UTF-8 ./divisible 10 3a
+  $ LANG=ja_JP.UTF-8 ./divisible 10 3a
   ロケール (LANGに代入している値) のフォーマットは "言語_国.文字コード" であり、
   言語や地域に応じた表示 (言語と、年月日、通貨や小数点記号など）を指定するもの
   である。
