@@ -1,43 +1,38 @@
 #!/usr/bin/env python3
-# 2026/05/28 coded by chargpt
-#
 # metropolis_states.py
 #
-# 状態:
-#   A : E = 0
-#   B-J : E = 1
+# 状態数: NSTATES
+#   A00 : E = 0.0
+#   A01 : E = 0.1
+#   A02 : E = 0.2
+#    ...
+#   Axx : E = xxx
 #
 # メトロポリス法で状態遷移を行い、
 # 各状態やエネルギーの出現頻度を数える。
+#
+# 2026/05/28 coded by chargpt
+# 2026/06/03 modified by okazaki,i
 
 import random
 import math
 from collections import Counter
 
-# ----------------------------
 # 状態とエネルギー
-# ----------------------------
-states = [chr(ord("A") + i) for i in range(10)]
+NSTATES = 10
+states = [ "A" + f"{i:02d}" for i in range(NSTATES) ]
+energy = { s : 0.1 * i for i, s in enumerate(states) }  #ΔE
 
-energy = {s: 1.0 for s in states}
-energy["A"] = 0.0
-
-# ----------------------------
-# 温度パラメータ
-# beta = 1/(k_B T)
-# ここでは k_B = 1 とする
-# ----------------------------
+# 温度パラメータ, beta = 1/(k_B T), ここでは k_B = 1 とする
 beta = 1.0
 
-# ----------------------------
 # シミュレーション回数
-# ----------------------------
+#n_steps = 10000000
 n_steps = 100000
+#n_steps =  10
 
-# ----------------------------
 # 初期状態
-# ----------------------------
-current = "A"
+current = states[0]
 
 # 記録用
 state_count = Counter()
@@ -45,25 +40,23 @@ energy_count = Counter()
 
 # ----------------------------
 # メトロポリス法
-# ----------------------------
-for step in range(n_steps):
+for step in range( n_steps ):
 
     # 候補状態をランダムに選ぶ
-    proposal = random.choice(states)
+    proposal = random.choice( states )
 
     # エネルギー差
     dE = energy[proposal] - energy[current]
 
     # 受理判定
-    accept = False
-
     if dE <= 0:
         accept = True
     else:
         r = random.random()
-
-        if r < math.exp(-beta * dE):
+        if r < math.exp( -beta * dE ):
             accept = True
+        else:
+            accept = False
 
     # 状態更新
     if accept:
@@ -75,41 +68,30 @@ for step in range(n_steps):
 
 # ----------------------------
 # 結果表示
-# ----------------------------
-print("=== state probability ===")
-
+print( "=== state (energy): probability ===")
 for s in states:
     p = state_count[s] / n_steps
-    print(f"{s}: {p:.5f}")
+    print( f"{s} ( {energy[s]:.3f} ): {p:.5f}" )
 
-print()
-
-print("=== energy probability ===")
-
-for E in sorted(energy_count.keys()):
+print( "=== energy probability ===" )
+for E in sorted( energy_count.keys() ):
     p = energy_count[E] / n_steps
-    print(f"E={E}: {p:.5f}")
+    print( f"E={E:.3f}: {p:.5f}" )
 
 # ----------------------------
 # 理論値
-# ----------------------------
-weights = {s: math.exp(-beta * energy[s]) for s in states}
-Z = sum(weights.values())
-
-state_prob = {s: weights[s] / Z for s in states}
+weights = { s: math.exp( -beta * energy[s] ) for s in states }
+Z = sum( weights.values() )
+state_prob = { s: weights[s] / Z for s in states }
 energy_prob = Counter()
-
 for s in states:
-    energy_prob[energy[s]] += state_prob[s]
+    energy_prob[ energy[s] ] += state_prob[s]  #縮退があれば加算
 
-print()
 print("=== theoretical ===")
-
 for s in states:
-    print(f"{s}: {state_prob[s]:.5f}")
-
-print()
-print("Energy theoretical:")
-
+    print( f"{s} ( {energy[s]:.3f} ): {state_prob[s]:.5f}" )
+print("=== Energy theoretical ===")
 for E in sorted(energy_prob.keys()):
-    print(f"E={E}: {energy_prob[E]:.5f}")
+    print( f"E={E:.3f}: {energy_prob[E]:.5f}" )
+
+# end of file
