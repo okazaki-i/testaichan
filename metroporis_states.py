@@ -11,6 +11,14 @@
 # メトロポリス法で状態遷移を行い、
 # 各状態やエネルギーの出現頻度を数える。
 #
+# $ gnuplot
+# > beta= 1.0 / ( 1.0 * 0.1 )
+# > plot '< ./metroporis_states.py' every :::2::2 u 3:5  w i, \
+#        '< ./metroporis_states.py' every :::0::0 u ($3+0.01):5  w i, \
+#        exp(-beta*x) w l  #(注) expはZで割ってないので重ならない
+# > set logscale y
+# > set xrange[-0.1:1.0]
+#
 # 2026/05/28 coded by chargpt
 # 2026/06/03 modified by okazaki,i
 
@@ -24,11 +32,13 @@ states = [ "A" + f"{i:02d}" for i in range(NSTATES) ]
 energy = { s : 0.1 * i for i, s in enumerate(states) }  #ΔE
 
 # 温度パラメータ, beta = 1/(k_B T), ここでは k_B = 1 とする
-beta = 1.0
+beta = 1.0 / ( 1.0 * 0.1 )
 
 # シミュレーション回数
 #n_steps = 10000000
-n_steps = 100000
+#n_steps = 100000
+n_steps = 100
+#n_steps = 50
 #n_steps =  10
 
 # 初期状態
@@ -68,12 +78,14 @@ for step in range( n_steps ):
 
 # ----------------------------
 # 結果表示
-print( "=== state (energy): probability ===")
+print()
+print( "#=== state (energy): probability ===")
 for s in states:
     p = state_count[s] / n_steps
     print( f"{s} ( {energy[s]:.3f} ): {p:.5f}" )
 
-print( "=== energy probability ===" )
+print()
+print( "#=== energy probability ===" )
 for E in sorted( energy_count.keys() ):
     p = energy_count[E] / n_steps
     print( f"E={E:.3f}: {p:.5f}" )
@@ -87,10 +99,13 @@ energy_prob = Counter()
 for s in states:
     energy_prob[ energy[s] ] += state_prob[s]  #縮退があれば加算
 
-print("=== theoretical ===")
+print()
+print( "#=== Theoretical ===" )
 for s in states:
     print( f"{s} ( {energy[s]:.3f} ): {state_prob[s]:.5f}" )
-print("=== Energy theoretical ===")
+
+print()
+print( "#=== Energy Theoretical ===" )
 for E in sorted(energy_prob.keys()):
     print( f"E={E:.3f}: {energy_prob[E]:.5f}" )
 
