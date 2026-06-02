@@ -5,8 +5,7 @@
 #
 # 状態:
 #   A : E = 0
-#   B : E = 1
-#   C : E = 1
+#   B-J : E = 1
 #
 # メトロポリス法で状態遷移を行い、
 # 各状態やエネルギーの出現頻度を数える。
@@ -18,13 +17,10 @@ from collections import Counter
 # ----------------------------
 # 状態とエネルギー
 # ----------------------------
-states = ["A", "B", "C"]
+states = [chr(ord("A") + i) for i in range(10)]
 
-energy = {
-    "A": 0.0,
-    "B": 1.0,
-    "C": 1.0,
-}
+energy = {s: 1.0 for s in states}
+energy["A"] = 0.0
 
 # ----------------------------
 # 温度パラメータ
@@ -97,23 +93,23 @@ for E in sorted(energy_count.keys()):
 # ----------------------------
 # 理論値
 # ----------------------------
-Z = (
-    math.exp(-beta * 0)
-    + math.exp(-beta * 1)
-    + math.exp(-beta * 1)
-)
+weights = {s: math.exp(-beta * energy[s]) for s in states}
+Z = sum(weights.values())
 
-pA = math.exp(0) / Z
-pB = math.exp(-beta) / Z
-pC = math.exp(-beta) / Z
+state_prob = {s: weights[s] / Z for s in states}
+energy_prob = Counter()
+
+for s in states:
+    energy_prob[energy[s]] += state_prob[s]
 
 print()
 print("=== theoretical ===")
-print(f"A: {pA:.5f}")
-print(f"B: {pB:.5f}")
-print(f"C: {pC:.5f}")
+
+for s in states:
+    print(f"{s}: {state_prob[s]:.5f}")
 
 print()
 print("Energy theoretical:")
-print(f"E=0: {pA:.5f}")
-print(f"E=1: {pB + pC:.5f}")
+
+for E in sorted(energy_prob.keys()):
+    print(f"E={E}: {energy_prob[E]:.5f}")
