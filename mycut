@@ -9,7 +9,8 @@ import stat
 import shutil
 import unicodedata
 
-DEFAULT_LIMIT_FALLBACK = 100
+DEFAULT_LIMIT_FALLBACK_COL = 100
+DEFAULT_LIMIT_FALLBACK_RAW = 24
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -33,7 +34,7 @@ def _is_pipe_or_tty_stdout():
 
 
 def _get_default_limit():
-    return shutil.get_terminal_size(fallback=(DEFAULT_LIMIT_FALLBACK, 24)).columns
+    return shutil.get_terminal_size(fallback=(DEFAULT_LIMIT_FALLBACK_COL, DEFAULT_LIMIT_FALLBACK_RAW)).columns
 
 
 def _parse_positive_int(value, option_name):
