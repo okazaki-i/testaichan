@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
+import os
 import subprocess
 import tempfile
 from pathlib import Path
 
 
-def run_mycut(data: bytes) -> bytes:
+def run_mycut(data: bytes, columns: int = 100) -> bytes:
     with tempfile.TemporaryDirectory() as td:
         p = Path(td) / "input.txt"
         p.write_bytes(data)
-        return subprocess.check_output(["./mycut"], stdin=p.open("rb"))
+        env = os.environ.copy()
+        env["COLUMNS"] = str(columns)
+        return subprocess.check_output(["./mycut"], stdin=p.open("rb"), env=env)
 
 
 def test_no_trailing_newline_input_keeps_no_trailing_newline_output() -> None:
     assert run_mycut(b"abc") == b"abc\x1b[0m"
+
+
+def test_default_limit_uses_terminal_columns() -> None:
+    long_line = (b"a" * 20) + b"\n"
+    assert run_mycut(long_line, columns=12) == (b"a" * 12) + b"\x1b[0m\n"
 
 
 def test_truncated_line_with_newline_keeps_newline() -> None:
