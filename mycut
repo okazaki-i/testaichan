@@ -31,6 +31,66 @@ def _is_pipe_or_tty_stdout():
     return stat.S_ISFIFO(mode)
 
 
+def _get_terminal_columns_from_stream(stream):
+    try:
+        columns = os.get_terminal_size(stream.fileno()).columns
+    except (AttributeError, OSError):
+        return None
+
+    if columns <= 0:
+        return None
+
+    return columns
+
+
+def _get_terminal_columns_from_tty():
+    try:
+        tty = os.open('/dev/tty', os.O_RDONLY)
+    except OSError:
+        return None
+
+    try:
+        columns = os.get_terminal_size(tty).columns
+    except OSError:
+        return None
+    finally:
+        os.close(tty)
+
+    if columns <= 0:
+        return None
+
+    return columns
+
+
+def _get_terminal_columns_from_environment():
+    try:
+        columns = int(os.environ.get('COLUMNS', ''))
+    except ValueError:
+        return None
+
+    if columns <= 0:
+        return None
+
+    return columns
+
+
+def _get_default_limit():
+    for stream in (sys.stdout, sys.stderr, sys.stdin):
+        columns = _get_terminal_columns_from_stream(stream)
+        if columns is not None:
+            return columns
+
+    columns = _get_terminal_columns_from_tty()
+    if columns is not None:
+        return columns
+
+    columns = _get_terminal_columns_from_environment()
+    if columns is not None:
+        return columns
+
+    return DEFAULT_LIMIT
+
+
 def _parse_positive_int(value, option_name):
     try:
         number = int(value)
@@ -47,7 +107,7 @@ def _parse_positive_int(value, option_name):
 
 def _parse_options(argv):
     color_mode = 'auto'
-    limit = DEFAULT_LIMIT
+    limit = _get_default_limit()
     i = 0
 
     while i < len(argv):
