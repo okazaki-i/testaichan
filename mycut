@@ -125,7 +125,7 @@ def _parse_options(argv):
                 print(f"mycut: invalid argument for --color: '{value}'", file=sys.stderr)
                 sys.exit(2)
             color_mode = value
-        elif arg == '--no-pager':
+        elif arg == '-n' or arg == '--no-pager':
             use_pager = False
         elif arg == '-c' or arg == '--characters':
             i += 1
@@ -137,7 +137,7 @@ def _parse_options(argv):
             value = arg.split('=', 1)[1]
             limit = _parse_positive_int(value, '--characters')
         else:
-            print('usage: mycut [--color=auto|never|always] [--no-pager] [-c N|--characters N|--characters=N]', file=sys.stderr)
+            print('usage: mycut [--color=auto|never|always] [-n|--no-pager] [-c N|--characters N|--characters=N]', file=sys.stderr)
             sys.exit(2)
 
         i += 1

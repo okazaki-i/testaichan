@@ -78,6 +78,7 @@ printf 'abcdefghijklmnopqrstuvwxyz\n' | ./mycut
 printf 'abcdefghijklmnopqrstuvwxyz\n' | ./mycut -c 5
 printf '\033[31mred\033[0m text\n' | ./mycut --color=always
 seq 100 | ./mycut --no-pager
+seq 100 | ./mycut -n
 ```
 
 
@@ -102,4 +103,4 @@ gcc outswtch.c
 ## 補足
 
 - `mycut` の `--color` は `auto` / `never` / `always` を受け付けます。
-- `mycut` は標準出力が端末で、出力行数が端末の行数を超える場合に `$PAGER`、`less -FRX`、`more` の順で利用可能なページャーを使います。`--no-pager` を指定するとページャーを使いません。
+- `mycut` は標準出力が端末で、出力行数が端末の行数を超える場合に `$PAGER`、`less -FRX`、`more` の順で利用可能なページャーを使います。`-n` または `--no-pager` を指定するとページャーを使いません。

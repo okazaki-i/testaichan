@@ -143,7 +143,7 @@ def test_pager_is_used_when_output_exceeds_terminal_rows(tmp_path: Path) -> None
     assert b"PAGER" in output
 
 
-def test_no_pager_option_disables_pager(tmp_path: Path) -> None:
+def test_no_pager_long_option_disables_pager(tmp_path: Path) -> None:
     pager = tmp_path / "pager.py"
     pager.write_text(
         "#!/usr/bin/env python3\n"
@@ -154,6 +154,23 @@ def test_no_pager_option_disables_pager(tmp_path: Path) -> None:
     pager.chmod(0o755)
 
     output = run_mycut_with_tty_stdout(b"1\n2\n3\n4\n", rows=3, pager=str(pager), args=["--no-pager"])
+
+    assert b"PAGER" not in output
+    assert b"1" in output
+    assert b"4" in output
+
+
+def test_no_pager_short_option_disables_pager(tmp_path: Path) -> None:
+    pager = tmp_path / "pager.py"
+    pager.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "sys.stdout.write('PAGER\\n')\n"
+        "sys.stdout.write(sys.stdin.read())\n"
+    )
+    pager.chmod(0o755)
+
+    output = run_mycut_with_tty_stdout(b"1\n2\n3\n4\n", rows=3, pager=str(pager), args=["-n"])
 
     assert b"PAGER" not in output
     assert b"1" in output
