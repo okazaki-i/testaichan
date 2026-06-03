@@ -3,7 +3,8 @@
   pointer_ruler.py
 
   マウスボタンで以下の動作をする。
-  - Button1ドラッグ  移動や拡大縮小させる
+  - Button1ドラッグ  移動させる
+  - Shift+Button1ドラッグ  拡大縮小させる
   - Button2          終了する
   - Button3          ウィンドウマネージャによる修飾の有効無効化を切り替える(VcXsrv用)
 
@@ -53,16 +54,16 @@ def button_release3( event ):
     return "break"
 
 
-def button_press1( event ):
+def button_press1( event, resize_enabled=False ):
     global mode, start_x, start_y, start_w, start_h
 
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
-    if event.x >= start_w - EDGE and event.y >= start_h - EDGE:
+    if resize_enabled and event.x >= start_w - EDGE and event.y >= start_h - EDGE:
         mode = "resize_width_height"
-    elif event.x >= start_w - EDGE:
+    elif resize_enabled and event.x >= start_w - EDGE:
         mode = "resize_width"
-    elif event.y >= start_h - EDGE:
+    elif resize_enabled and event.y >= start_h - EDGE:
         mode = "resize_height"
     else:
         mode = "move"
@@ -96,6 +97,7 @@ def motion( event ):
 canvas.bind( "<Button-2>", button_press2 ) #終了
 canvas.bind( "<Button-3>", button_press3 ) #Button3押下をTk内で止める
 canvas.bind( "<ButtonRelease-3>", button_release3 ) #ウィンドウマネージャによる修飾の有効無効化
-canvas.bind( "<Button-1>", button_press1 ) #移動や拡大縮小
+canvas.bind( "<Button-1>", button_press1 ) #移動
+canvas.bind( "<Shift-Button-1>", lambda event: button_press1( event, True ) ) #Shift押下時は拡大縮小
 canvas.bind( "<B1-Motion>", motion )
 root.mainloop()
