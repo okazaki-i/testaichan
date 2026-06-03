@@ -6,9 +6,11 @@ import re
 import sys
 import os
 import stat
+import shutil
 import unicodedata
 
-DEFAULT_LIMIT = 100
+DEFAULT_LIMIT_FALLBACK_COL = 100
+DEFAULT_LIMIT_FALLBACK_RAW = 24
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
