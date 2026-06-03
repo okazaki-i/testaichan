@@ -4,9 +4,11 @@
 
   マウスボタンで以下の動作をする。
   - Button1ドラッグ  移動させる
-  - Shift+Button1ドラッグ  拡大縮小させる
-  - Button2          終了する
-  - Button3          ウィンドウマネージャによる修飾の有効無効化を切り替える(VcXsrv用)
+  - Button2          ウィンドウマネージャによる修飾の有効無効化を切り替える(VcXsrv用)
+  - Button3ドラッグ  拡大縮小させる
+
+  (備考) VcXsrvだとウィンドウマネージャによる修飾を無効にしているとキーイベントを受け取れ
+  ないようである。Shift+Button-1のような Shiftキーも同様。
 
   2026/05/30 coded by chatgpt, and modified a lot by okazaki,i
 '''
@@ -29,16 +31,9 @@ mode = None; start_x = 0; start_y = 0
 
 
 def button_press2( event ):
-    '''終了させる
-    （VcXsrvだとウィンドウマネージャによる修飾を無効にしていると
-    キーイベントを受け取れないようである）'''
-    root.destroy()
-
-def button_press3( event ):
-    '''Button3押下をTk内で止める
+    '''Button2押下をTk内で止める
     （押下中にwithdrawすると、VcXsrvがWindows側へ同じボタン押下を渡すことがある）'''
     return "break"
-
 
 def toggle_decorations():
     '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする'''
@@ -46,15 +41,22 @@ def toggle_decorations():
     root.withdraw(); root.deiconify() #うまく再描画させるため
 
 
-def button_release3( event ):
-    '''Button3を離した後でウィンドウマネージャによる装飾を切り替える
+def button_release2( event ):
+    '''Button2を離した後でウィンドウマネージャによる装飾を切り替える
     （VcXsrvでウィンドウが背面から最前面に変えられないときの処置として、
     いったん有効にして最前面にさせるために用意している）'''
     root.after_idle( toggle_decorations )
     return "break"
 
 
-def button_press1( event, resize_enabled=False ):
+def button_press1( event ):
+    global mode, start_x, start_y
+
+    start_x = event.x_root; start_y = event.y_root
+    mode = "move"
+
+
+def button_press3( event ):
     global mode, start_x, start_y, start_w, start_h
 
     start_x = event.x_root; start_y = event.y_root
@@ -66,7 +68,7 @@ def button_press1( event, resize_enabled=False ):
     elif resize_enabled and event.y >= start_h - EDGE:
         mode = "resize_height"
     else:
-        mode = "move"
+        mode = None
 
 
 def motion( event ):
@@ -94,10 +96,10 @@ def motion( event ):
     #print( f"in motion: {root.winfo_width()}x{root.winfo_height()}+{root.winfo_x()}+{root.winfo_y()}" )
 
 
-canvas.bind( "<Button-2>", button_press2 ) #終了
-canvas.bind( "<Button-3>", button_press3 ) #Button3押下をTk内で止める
-canvas.bind( "<ButtonRelease-3>", button_release3 ) #ウィンドウマネージャによる修飾の有効無効化
+canvas.bind( "<Button-2>", button_press2 ) #Button2押下をTk内で止める
+canvas.bind( "<ButtonRelease-2>", button_release2 ) #ウィンドウマネージャによる修飾の有効無効化
 canvas.bind( "<Button-1>", button_press1 ) #移動
-canvas.bind( "<Shift-Button-1>", lambda event: button_press1( event, True ) ) #Shift押下時は拡大縮小
 canvas.bind( "<B1-Motion>", motion )
+canvas.bind( "<Button-3>", button_press3 ) #拡大縮小
+canvas.bind( "<B3-Motion>", motion )
 root.mainloop()
