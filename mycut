@@ -7,10 +7,12 @@ import sys
 import os
 import stat
 import shutil
+import shlex
+import subprocess
 import unicodedata
 
 DEFAULT_LIMIT_FALLBACK_COL = 100
-DEFAULT_LIMIT_FALLBACK_RAW = 24
+DEFAULT_LIMIT_FALLBACK_ROW = 24
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -90,7 +92,7 @@ def _get_default_limit():
     if columns is not None:
         return columns
 
-    return DEFAULT_LIMIT
+    return DEFAULT_LIMIT_FALLBACK_COL
 
 
 def _parse_positive_int(value, option_name):
@@ -110,6 +112,7 @@ def _parse_positive_int(value, option_name):
 def _parse_options(argv):
     color_mode = 'auto'
     limit = _get_default_limit()
+    use_pager = True
     i = 0
 
     while i < len(argv):
@@ -121,6 +124,8 @@ def _parse_options(argv):
                 print(f"mycut: invalid argument for --color: '{value}'", file=sys.stderr)
                 sys.exit(2)
             color_mode = value
+        elif arg == '--no-pager':
+            use_pager = False
         elif arg == '-c' or arg == '--characters':
             i += 1
             if i >= len(argv):
@@ -131,15 +136,15 @@ def _parse_options(argv):
             value = arg.split('=', 1)[1]
             limit = _parse_positive_int(value, '--characters')
         else:
-            print('usage: mycut [--color=auto|never|always] [-c N|--characters N|--characters=N]', file=sys.stderr)
+            print('usage: mycut [--color=auto|never|always] [--no-pager] [-c N|--characters N|--characters=N]', file=sys.stderr)
             sys.exit(2)
 
         i += 1
 
-    return color_mode, limit
+    return color_mode, limit, use_pager
 
 
-color_mode, limit = _parse_options(sys.argv[1:])
+color_mode, limit, use_pager = _parse_options(sys.argv[1:])
 
 if color_mode == 'always':
     keep_color = True
@@ -147,6 +152,107 @@ elif color_mode == 'never':
     keep_color = False
 else:
     keep_color = _is_pipe_or_tty_stdout()
+
+
+def _get_terminal_rows_from_stream(stream):
+    try:
+        rows = os.get_terminal_size(stream.fileno()).lines
+    except (AttributeError, OSError):
+        return None
+
+    if rows <= 0:
+        return None
+
+    return rows
+
+
+def _get_terminal_rows_from_tty():
+    try:
+        tty = os.open('/dev/tty', os.O_RDONLY)
+    except OSError:
+        return None
+
+    try:
+        rows = os.get_terminal_size(tty).lines
+    except OSError:
+        return None
+    finally:
+        os.close(tty)
+
+    if rows <= 0:
+        return None
+
+    return rows
+
+
+def _get_terminal_rows_from_environment():
+    try:
+        rows = int(os.environ.get('LINES', ''))
+    except ValueError:
+        return None
+
+    if rows <= 0:
+        return None
+
+    return rows
+
+
+def _get_terminal_rows():
+    for stream in (sys.stdout, sys.stderr, sys.stdin):
+        rows = _get_terminal_rows_from_stream(stream)
+        if rows is not None:
+            return rows
+
+    rows = _get_terminal_rows_from_tty()
+    if rows is not None:
+        return rows
+
+    rows = _get_terminal_rows_from_environment()
+    if rows is not None:
+        return rows
+
+    return DEFAULT_LIMIT_FALLBACK_ROW
+
+
+def _count_screen_rows(text):
+    if text == '':
+        return 0
+
+    rows = text.count('\n')
+    if not text.endswith('\n'):
+        rows += 1
+
+    return rows
+
+
+def _get_pager_command():
+    pager = os.environ.get('PAGER')
+    if pager:
+        return shlex.split(pager)
+
+    if shutil.which('less') is not None:
+        return ['less', '-FRX']
+
+    if shutil.which('more') is not None:
+        return ['more']
+
+    return None
+
+
+def _write_output(text):
+    if use_pager and sys.stdout.isatty() and _count_screen_rows(text) > _get_terminal_rows():
+        pager_command = _get_pager_command()
+        if pager_command is not None:
+            try:
+                subprocess.run(pager_command, input=text, text=True, check=False)
+                return
+            except OSError:
+                pass
+
+    sys.stdout.write(text)
+
+
+output = []
 
 for line in sys.stdin:
     had_newline = line.endswith('\n')
@@ -178,4 +284,6 @@ for line in sys.stdin:
     if had_newline:
         out += '\n'
 
-    sys.stdout.write(out)
+    output.append(out)
+
+_write_output(''.join(output))
