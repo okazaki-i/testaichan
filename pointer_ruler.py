@@ -20,7 +20,7 @@ root.overrideredirect( True )  #ウィンドウマネージャによる装飾を
 root.attributes( "-topmost", True )  #常に最前面に表示、VcXsrvだとWindowsアプリの下から出ない
 root.attributes( "-alpha", 0.2 )  #ウィンドウの透明度、機能しない
 
-EDGE = 15
+EDGE = 60
 start_w = 100
 start_h = 200
 root.geometry( f"100x200+500-500" )  #初期配置と大きさ
@@ -60,11 +60,11 @@ def button_press3( event ):
     global mode, start_x, start_y, start_w, start_h
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
-    if resize_enabled and event.x >= start_w - EDGE and event.y >= start_h - EDGE:
+    if event.x >= start_w - EDGE and event.y >= start_h - EDGE:
         mode = "resize_width_height"
-    elif resize_enabled and event.x >= start_w - EDGE:
+    elif event.x >= start_w - EDGE:
         mode = "resize_width"
-    elif resize_enabled and event.y >= start_h - EDGE:
+    elif event.y >= start_h - EDGE:
         mode = "resize_height"
     else:
         mode = None
@@ -79,12 +79,12 @@ def motion( event ):
         start_x = event.x_root; start_y = event.y_root
 
     elif mode == "resize_width_height":
-        w = max( 20, start_w + dx )
+        w = max( 5, start_w + dx )
         h = max( 5, start_h + dy )
         root.geometry( f"{w}x{h}" )
 
     elif mode == "resize_width":
-        w = max( 20, start_w + dx )
+        w = max( 5, start_w + dx )
         root.geometry( f"{w}x{root.winfo_height()}" )
 
     elif mode == "resize_height":
