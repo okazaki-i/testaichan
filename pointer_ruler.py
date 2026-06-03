@@ -7,6 +7,9 @@
   - Button2          ウィンドウマネージャによる修飾の有効無効化を切り替える(VcXsrv用)
   - Button3ドラッグ  拡大縮小させる
 
+  (備考) VcXsrvだとウィンドウマネージャによる修飾を無効にしているとキーイベントを受け取れ
+  ないようである。Shift+Button-1のような Shiftキーも同様。
+
   2026/05/30 coded by chatgpt, and modified a lot by okazaki,i
 '''
 
@@ -58,11 +61,11 @@ def button_press3( event ):
 
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
-    if event.x >= start_w - EDGE and event.y >= start_h - EDGE:
+    if resize_enabled and event.x >= start_w - EDGE and event.y >= start_h - EDGE:
         mode = "resize_width_height"
-    elif event.x >= start_w - EDGE:
+    elif resize_enabled and event.x >= start_w - EDGE:
         mode = "resize_width"
-    elif event.y >= start_h - EDGE:
+    elif resize_enabled and event.y >= start_h - EDGE:
         mode = "resize_height"
     else:
         mode = None
