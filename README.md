@@ -24,7 +24,7 @@
   Python製の簡易 cut 風コマンド。
 標準入力を1行ずつ読み取り、デフォルトで先頭100文字（`-c/--characters` で変更可能）を出力します。
 ANSIカラーコードを考慮して文字数を数える実装になっています。日本語文字も対応。
-出力先の種類に応じてカラーを取り除いたりもします。
+出力先の種類に応じてカラーを取り除いたり、端末に収まらない行数の出力はページャーで表示したりもします。
 
 - `test_mycut.py`
   `mycut` の挙動確認用 pytest テストです。
@@ -77,6 +77,8 @@ chmod +x mycut
 printf 'abcdefghijklmnopqrstuvwxyz\n' | ./mycut
 printf 'abcdefghijklmnopqrstuvwxyz\n' | ./mycut -c 5
 printf '\033[31mred\033[0m text\n' | ./mycut --color=always
+seq 100 | ./mycut --no-pager
+seq 100 | ./mycut -n
 ```
 
 
@@ -101,3 +103,4 @@ gcc outswtch.c
 ## 補足
 
 - `mycut` の `--color` は `auto` / `never` / `always` を受け付けます。
+- `mycut` は標準出力が端末で、出力行数が端末の行数を超える場合に `$PAGER`、`less -FRX`、`more` の順で利用可能なページャーを使います。`-n` または `--no-pager` を指定するとページャーを使いません。
