@@ -26,8 +26,9 @@ MINSIZE_h=5
 start_w = 100
 start_h = 200
 root.geometry( f"{start_w}x{start_h}+500-500" )  #初期配置と大きさ
-BLINK_INTERVAL_MS = 500
-BLINK_COLORS = ( "red", "white" )
+BLINK_INTERVAL_MS = 600
+#BLINK_COLORS = ( "red", "#ff5050" )
+BLINK_COLORS = ( "red", "red" )
 blink_color_index = 0
 
 canvas = tkinter.Canvas( root, bg=BLINK_COLORS[blink_color_index], highlightthickness=0, bd=0 )
