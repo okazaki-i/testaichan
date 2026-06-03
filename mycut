@@ -262,28 +262,37 @@ def _get_pager_environment(pager_command):
     return env
 
 
-def _write_output(text):
-    if use_pager and sys.stdout.isatty() and _count_screen_rows(text) > _get_terminal_rows():
-        pager_command = _get_pager_command()
-        if pager_command is not None:
-            try:
-                subprocess.run(
-                    pager_command,
-                    input=text,
-                    text=True,
-                    check=False,
-                    env=_get_pager_environment(pager_command),
-                )
-                return
-            except OSError:
-                pass
-
-    sys.stdout.write(text)
+def _start_pager(pager_command):
+    try:
+        return subprocess.Popen(
+            pager_command,
+            stdin=subprocess.PIPE,
+            text=True,
+            env=_get_pager_environment(pager_command),
+        )
+    except OSError:
+        return None
 
 
-output = []
+def _write_to_pager(pager_process, text):
+    try:
+        pager_process.stdin.write(text)
+    except (BrokenPipeError, OSError):
+        return False
 
-for line in sys.stdin:
+    return True
+
+
+def _finish_pager(pager_process):
+    try:
+        pager_process.stdin.close()
+    except (BrokenPipeError, OSError):
+        pass
+
+    pager_process.wait()
+
+
+def _process_line(line):
     had_newline = line.endswith('\n')
     content = line[:-1] if had_newline else line
 
@@ -313,6 +322,57 @@ for line in sys.stdin:
     if had_newline:
         out += '\n'
 
-    output.append(out)
+    return out
 
-_write_output(''.join(output))
+
+def _stream_output():
+    for line in sys.stdin:
+        sys.stdout.write(_process_line(line))
+
+
+def _write_with_pager_if_needed():
+    pager_command = _get_pager_command()
+    if pager_command is None:
+        _stream_output()
+        return
+
+    terminal_rows = _get_terminal_rows()
+    buffered_output = []
+    buffered_rows = 0
+    pager_process = None
+
+    for line in sys.stdin:
+        out = _process_line(line)
+
+        if pager_process is not None:
+            if not _write_to_pager(pager_process, out):
+                _finish_pager(pager_process)
+                return
+            continue
+
+        buffered_output.append(out)
+        buffered_rows += _count_screen_rows(out)
+
+        if buffered_rows > terminal_rows:
+            pager_process = _start_pager(pager_command)
+            if pager_process is None:
+                sys.stdout.write(''.join(buffered_output))
+                _stream_output()
+                return
+
+            if not _write_to_pager(pager_process, ''.join(buffered_output)):
+                _finish_pager(pager_process)
+                return
+
+            buffered_output = []
+
+    if pager_process is None:
+        sys.stdout.write(''.join(buffered_output))
+    else:
+        _finish_pager(pager_process)
+
+
+if use_pager and sys.stdout.isatty():
+    _write_with_pager_if_needed()
+else:
+    _stream_output()

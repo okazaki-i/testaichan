@@ -177,6 +177,62 @@ def test_no_pager_short_option_disables_pager(tmp_path: Path) -> None:
     assert b"4" in output
 
 
+def read_pty_output(master: int, timeout: float = 2.0) -> bytes:
+    output = bytearray()
+    ready, _, _ = select.select([master], [], [], timeout)
+    if not ready:
+        return bytes(output)
+
+    while ready:
+        try:
+            chunk = os.read(master, 4096)
+        except OSError:
+            break
+        if not chunk:
+            break
+        output.extend(chunk)
+        ready, _, _ = select.select([master], [], [], 0)
+
+    return bytes(output)
+
+
+def test_no_pager_streams_before_stdin_eof() -> None:
+    master, slave = pty.openpty()
+    process = None
+    try:
+        size = struct.pack("HHHH", 24, 80, 0, 0)
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, size)
+        env = os.environ.copy()
+        env.pop("COLUMNS", None)
+        env.pop("LINES", None)
+        process = subprocess.Popen(
+            ["./mycut", "--no-pager"],
+            stdin=subprocess.PIPE,
+            stdout=slave,
+            stderr=subprocess.PIPE,
+            env=env,
+        )
+        os.close(slave)
+        slave = -1
+
+        assert process.stdin is not None
+        process.stdin.write(b"abc\n")
+        process.stdin.flush()
+
+        assert b"abc" in read_pty_output(master)
+
+        process.stdin.close()
+        process.wait(timeout=10)
+        assert process.returncode == 0
+    finally:
+        if process is not None and process.poll() is None:
+            process.kill()
+            process.wait(timeout=10)
+        if slave >= 0:
+            os.close(slave)
+        os.close(master)
+
+
 def test_less_pager_is_configured_to_show_color(tmp_path: Path) -> None:
     pager = tmp_path / "less"
     pager.write_text(
