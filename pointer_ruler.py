@@ -20,10 +20,12 @@ root.overrideredirect( True )  #ウィンドウマネージャによる装飾を
 root.attributes( "-topmost", True )  #常に最前面に表示、VcXsrvだとWindowsアプリの下から出ない
 root.attributes( "-alpha", 0.2 )  #ウィンドウの透明度、機能しない
 
-EDGE = 60
+RESIZE_EDGE = 60
+MINSIZE_w=5
+MINSIZE_h=5
 start_w = 100
 start_h = 200
-root.geometry( f"100x200+500-500" )  #初期配置と大きさ
+root.geometry( f"{start_w}x{start_h}+500-500" )  #初期配置と大きさ
 canvas = tkinter.Canvas( root, bg="red", highlightthickness=0, bd=0 )
 canvas.pack( fill="both", expand=True )
 
@@ -60,11 +62,11 @@ def button_press3( event ):
     global mode, start_x, start_y, start_w, start_h
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
-    if event.x >= start_w - EDGE and event.y >= start_h - EDGE:
+    if event.x >= start_w - RESIZE_EDGE and event.y >= start_h - RESIZE_EDGE:
         mode = "resize_width_height"
-    elif event.x >= start_w - EDGE:
+    elif event.x >= start_w - RESIZE_EDGE:
         mode = "resize_width"
-    elif event.y >= start_h - EDGE:
+    elif event.y >= start_h - RESIZE_EDGE:
         mode = "resize_height"
     else:
         mode = None
@@ -79,16 +81,16 @@ def motion( event ):
         start_x = event.x_root; start_y = event.y_root
 
     elif mode == "resize_width_height":
-        w = max( 5, start_w + dx )
-        h = max( 5, start_h + dy )
+        w = max( MINSIZE_w, start_w + dx )
+        h = max( MINSIZE_h, start_h + dy )
         root.geometry( f"{w}x{h}" )
 
     elif mode == "resize_width":
-        w = max( 5, start_w + dx )
+        w = max( MINSIZE_w, start_w + dx )
         root.geometry( f"{w}x{root.winfo_height()}" )
 
     elif mode == "resize_height":
-        h = max( 5, start_h + dy )
+        h = max( MINSIZE_h, start_h + dy )
         root.geometry( f"{root.winfo_width()}x{h}" )
 
     #print( f"in motion: {root.winfo_width()}x{root.winfo_height()}+{root.winfo_x()}+{root.winfo_y()}" )
