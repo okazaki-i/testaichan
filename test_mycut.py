@@ -37,7 +37,13 @@ def run_mycut_with_tty_stderr(data: bytes, columns: int) -> bytes:
         os.close(master)
 
 
-def run_mycut_with_tty_stdout(data: bytes, rows: int, pager: str | None = None, args: list[str] | None = None) -> bytes:
+def run_mycut_with_tty_stdout(
+    data: bytes,
+    rows: int,
+    pager: str | None = None,
+    args: list[str] | None = None,
+    env_updates: dict[str, str] | None = None,
+) -> bytes:
     master, slave = pty.openpty()
     try:
         size = struct.pack("HHHH", rows, 80, 0, 0)
@@ -47,6 +53,8 @@ def run_mycut_with_tty_stdout(data: bytes, rows: int, pager: str | None = None, 
         env.pop("LINES", None)
         if pager is not None:
             env["PAGER"] = pager
+        if env_updates is not None:
+            env.update(env_updates)
 
         command = ["./mycut"]
         if args is not None:
@@ -150,3 +158,27 @@ def test_no_pager_option_disables_pager(tmp_path: Path) -> None:
     assert b"PAGER" not in output
     assert b"1" in output
     assert b"4" in output
+
+
+def test_less_pager_is_configured_to_show_color(tmp_path: Path) -> None:
+    pager = tmp_path / "less"
+    pager.write_text(
+        "#!/usr/bin/env python3\n"
+        "import os\n"
+        "import sys\n"
+        "sys.stdout.write(os.environ.get('LESS', ''))\n"
+        "sys.stdout.write('\\n')\n"
+        "sys.stdout.write(sys.stdin.read())\n"
+    )
+    pager.chmod(0o755)
+
+    output = run_mycut_with_tty_stdout(
+        b"\x1b[31mred\x1b[0m\n2\n3\n4\n",
+        rows=3,
+        pager=str(pager),
+        env_updates={"LESS": "FX"},
+    )
+
+    first_line, _, rest = output.partition(b"\r\n")
+    assert b"R" in first_line
+    assert b"\x1b[31mred\x1b[0m" in rest

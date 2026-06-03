@@ -13,6 +13,7 @@ import unicodedata
 
 DEFAULT_LIMIT_FALLBACK_COL = 100
 DEFAULT_LIMIT_FALLBACK_ROW = 24
+DEFAULT_LESS_OPTIONS = 'FRX'
 
 ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -228,10 +229,13 @@ def _count_screen_rows(text):
 def _get_pager_command():
     pager = os.environ.get('PAGER')
     if pager:
-        return shlex.split(pager)
+        try:
+            return shlex.split(pager)
+        except ValueError:
+            return None
 
     if shutil.which('less') is not None:
-        return ['less', '-FRX']
+        return ['less']
 
     if shutil.which('more') is not None:
         return ['more']
@@ -239,12 +243,37 @@ def _get_pager_command():
     return None
 
 
+def _is_less_command(pager_command):
+    if not pager_command:
+        return False
+
+    return os.path.basename(pager_command[0]) == 'less'
+
+
+def _get_pager_environment(pager_command):
+    env = os.environ.copy()
+
+    if _is_less_command(pager_command):
+        less_options = env.get('LESS', DEFAULT_LESS_OPTIONS)
+        if 'R' not in less_options:
+            less_options += 'R'
+        env['LESS'] = less_options
+
+    return env
+
+
 def _write_output(text):
     if use_pager and sys.stdout.isatty() and _count_screen_rows(text) > _get_terminal_rows():
         pager_command = _get_pager_command()
         if pager_command is not None:
             try:
-                subprocess.run(pager_command, input=text, text=True, check=False)
+                subprocess.run(
+                    pager_command,
+                    input=text,
+                    text=True,
+                    check=False,
+                    env=_get_pager_environment(pager_command),
+                )
                 return
             except OSError:
                 pass
