@@ -26,10 +26,21 @@ MINSIZE_h=5
 start_w = 100
 start_h = 200
 root.geometry( f"{start_w}x{start_h}+500-500" )  #初期配置と大きさ
-canvas = tkinter.Canvas( root, bg="red", highlightthickness=0, bd=0 )
+BLINK_INTERVAL_MS = 500
+BLINK_COLORS = ( "red", "white" )
+blink_color_index = 0
+
+canvas = tkinter.Canvas( root, bg=BLINK_COLORS[blink_color_index], highlightthickness=0, bd=0 )
 canvas.pack( fill="both", expand=True )
 
 mode = None; start_x = 0; start_y = 0
+
+
+def blink_rectangle():
+    global blink_color_index
+    blink_color_index = 1 - blink_color_index
+    canvas.configure( bg=BLINK_COLORS[blink_color_index] )
+    root.after( BLINK_INTERVAL_MS, blink_rectangle )
 
 
 def button_press2( event ):
@@ -102,4 +113,5 @@ canvas.bind( "<Button-1>", button_press1 ) #移動
 canvas.bind( "<B1-Motion>", motion )
 canvas.bind( "<Button-3>", button_press3 ) #拡大縮小
 canvas.bind( "<B3-Motion>", motion )
+root.after( BLINK_INTERVAL_MS, blink_rectangle )
 root.mainloop()
