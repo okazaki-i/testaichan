@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # 2026/05/20 coded by codex and okazaki,i
 # 2026/05/21 modified by codex and okazaki,i
+# 2026/06/04 updated by codex
 
 import re
 import sys
