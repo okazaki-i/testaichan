@@ -10,7 +10,7 @@
   (備考) VcXsrvだとウィンドウマネージャによる修飾を無効にしているとキーイベントを受け取れ
   ないようである。Shift+Button-1のような Shiftキーも同様。
 
-  2026/05/30 coded by chatgpt, and modified a lot by okazaki,i
+  2026/05/30,06/03 coded by chatgpt, and modified a lot by okazaki,i
 '''
 
 import tkinter
@@ -35,6 +35,7 @@ def button_press2( event ):
     （押下中にwithdrawすると、VcXsrvがWindows側へ同じボタン押下を渡すことがある）'''
     return "break"
 
+
 def toggle_decorations():
     '''ウィンドウマネージャによる装飾が無効であれば有効に、有効であれば無効にする'''
     root.overrideredirect( not root.overrideredirect() ) #True/Falseの状態を逆にする
@@ -51,14 +52,12 @@ def button_release2( event ):
 
 def button_press1( event ):
     global mode, start_x, start_y
-
     start_x = event.x_root; start_y = event.y_root
     mode = "move"
 
 
 def button_press3( event ):
     global mode, start_x, start_y, start_w, start_h
-
     start_x = event.x_root; start_y = event.y_root
     start_w = root.winfo_width(); start_h = root.winfo_height()
     if resize_enabled and event.x >= start_w - EDGE and event.y >= start_h - EDGE:
@@ -73,7 +72,6 @@ def button_press3( event ):
 
 def motion( event ):
     global start_x, start_y
-
     dx = event.x_root - start_x; dy = event.y_root - start_y
     if mode == "move":
         x = root.winfo_x() + dx; y = root.winfo_y() + dy
