@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Tkinter canvas drawing program."""
+"""Tkinter canvas drawing program.
+
+- windows VcXsrv上でwacomペンを使うと、タップ(クリック)のようなものが
+別に解釈されて使いずらい。
+- キャンバスウインドウを大きくしたり小さくしたりしても支障なし。
+"""
 
 import tkinter
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 600
-PEN_WIDTH = 4
-ERASER_WIDTH = 24
+PEN_WIDTH = 1     #ペン幅
+ERASER_WIDTH = 8  #消しゴム幅
 PEN_COLORS = ("black", "red")
 BACKGROUND_COLOR = "white"
 
