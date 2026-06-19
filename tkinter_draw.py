@@ -2,7 +2,7 @@
 """Tkinter canvas drawing program.
 
 - windows VcXsrv上でwacomペンを使うと、タップ(クリック)のようなものが
-別に解釈されて使いずらい。
+別に解釈されて使いずらい。→Windows Inkをoffにして解決。
 - キャンバスウインドウを大きくしたり小さくしたりしても支障なし。
 """
 
@@ -39,8 +39,10 @@ class DrawingApp:
         self.canvas.pack(fill="both", expand=True)
 
         self.canvas.bind("<Button-1>", self.start_pen)
+#        self.canvas.bind("<Button-1>", self.draw_pen, add="+") #追加
         self.canvas.bind("<B1-Motion>", self.draw_pen)
-        self.canvas.bind("<ButtonRelease-1>", self.stop_pen)
+#        self.canvas.bind("<ButtonRelease-1>", self.draw_pen) #追加
+        self.canvas.bind("<ButtonRelease-1>", self.stop_pen)#, add="+")
         self.canvas.bind("<Button-2>", self.toggle_pen_color)
         self.canvas.bind("<Button-3>", self.start_eraser)
         self.canvas.bind("<B3-Motion>", self.draw_eraser)
