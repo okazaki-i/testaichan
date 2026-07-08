@@ -11,8 +11,10 @@ int main( void )
 {
     double  x0, x;
 
-    x0 = 1.0;
-    x = newton( x0, 1e-12, 30 ); //初期値、収束判定のしきい値、繰返し最大回数
+//    x0 = 1.0;
+//    x0 = -1.0;
+    x0 = -4.0;
+    x = newton( x0, 1e-12, 30+10 ); //初期値、収束判定のしきい値、繰返し最大回数
     printf( "#solution= %.15f\n", x );
     return 0;
 }
@@ -39,10 +41,16 @@ double newton( double x, double threshold, int maxloop )
 
 double f( double x )
 {
-    return x*x-2.0;
+//    return x*x-2.0;
+//    return exp(-x)-x;
+//    return cos(x)-x;
+    return cos(x)-x/5.0;
 }
 
 double df( double x )
 {
-    return 2.0*x;
+//    return 2.0*x;
+//    return -exp(x)-1.0;
+//    return -sin(x)-1.0;
+    return -sin(x)-1.0/5.0;
 }
