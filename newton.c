@@ -11,7 +11,9 @@ int main( void )
 {
     double  x0, x;
 
-    x0 = 1.0;
+    x0 = 1.0; //-> -0.5
+//    x0 = 2.0; //->  1.5
+//    x0 = 0.1; //->  0.5
 
     x = newton( x0 );
     printf( "solution = %.15f\n", x );
@@ -39,10 +41,16 @@ double newton( double x )
 
 double f( double x )
 {
-    return x*x-2.0;
+//    return x*x-2.0;
+//    return 8.0*( x*x*x-3.0/2.0*x*x-1.0/4.0*x+3.0/8.0 );  // (2*x-1)*(2*x-3)*(2*x+1)
+//    return x*x+2.0;
+    return x*x;
 }
 
 double df( double x )
 {
+//    return 2.0*x;
+//    return 8.0*( 3.0*x*x-3.0*x-1.0/4.0 );
+//    return 2.0*x;
     return 2.0*x;
 }
