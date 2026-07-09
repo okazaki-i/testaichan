@@ -17,6 +17,7 @@ int main( void )
 //    v = 40.0/1000;
     for ( v=0.0/1000; v<20.0/1000+dv/2; v+= dv ) {
         //x = newton( 0.0, 1e-12, 30+30, v ); //初期値、収束判定のしきい値、繰返し最大回数、滴定量v
+        //x = newton( -1.0, 1e-12, 30+30, v ); //初期値、収束判定のしきい値、繰返し最大回数、滴定量v
         x = newton( 1.0, 1e-12, 30+30, v ); //初期値、収束判定のしきい値、繰返し最大回数、滴定量v
         printf( "v= %.4lf L : solution = %25.16le %6.3lf\n", v, x, -log10(x) );
     }
@@ -36,6 +37,7 @@ double newton( double x, double threshold, int maxloop, double v )
 //        printf( " %4d : %25.16le  %25.16le\n", i, x, dx );
         if ( fabs( dx ) < threshold ) break;
     }
+//    printf( " %4d : %25.16le  %25.16le    ", i, x, dx );
     if ( i == maxloop+1 ) {
         fprintf( stderr, " %4d : %25.16le  %25.16le    ", i, x, dx );
         fprintf( stderr, "not converged\n" );
@@ -60,7 +62,7 @@ double df( double x, double v )
 }
 
 /* for gnuplot
-v0=10.0/1000, m0=0.1, m=0.1, ka=1.74e-5, kw=1e-14;
+v0=10.0/1000; m0=0.1; m=0.1; ka=1.74e-5; kw=1e-14;
 
 f(x,v)= (v0+v)*x*x*x + ( (v0+v)*ka + m*v )*x*x + ( (m*v-m0*v0)*ka - (v0+v)*kw )*x - (v0+v)*kw*ka
 finv(x,v)=(v0+v)*x*x + ( (v0+v)*ka + m*v )*x + (m*v-m0*v0)*ka - (v0+v)*kw - (v0+v)*kw*ka/x
